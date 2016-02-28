@@ -82,8 +82,8 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         smack: false,
         assets: 'assets/'
       };
-      $scope.config = $scope.config || {};
-      var settings = angular.extend({},defaults,$scope.config);
+      var settings = angular.extend({},defaults,$scope.options || {});
+
       // statics
       var sounds = {
         wall: new Audio(settings.assets+"pong_8bit_wall.wav"),
