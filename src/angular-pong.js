@@ -4,7 +4,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
       restrict: 'E',
       controller: 'pongController',
       scope: {
-        config:'@'
+        options:'=?'
       },
       template: ('<pong-ball x="{{ball.x}}" y="{{ball.y}}"></pong-ball>'+
         '<pong-paddle side="left" y="{{paddles.left.y}}"></pong-paddle>'+
@@ -84,7 +84,6 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
       };
       $scope.config = $scope.config || {};
       var settings = angular.extend({},defaults,$scope.config);
-
       // statics
       var sounds = {
         wall: new Audio(settings.assets+"pong_8bit_wall.wav"),
@@ -108,7 +107,9 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
           'Timeout! I called a timeout!?!',
           'I\'m gonna remember this... just please don\'t delete your cookies.',
           'Ok, time for me to stop holding back...'
-        ]
+        ],
+        start: 'Shall we play a game? <span class="hint">press enter to start</hint>',
+        end: 'GAME OVER<span class="hint">press esc to reset</hint>'
       };
 
       // state variables
@@ -119,7 +120,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         };
         $scope.gameover = false;
         $scope.active = false;
-        $scope.message = 'Wanna play a game? <span class="hint">press enter to start</hint>';
+        $scope.message = messages.start;
       };
       init();
       var sideOut, messageTimeout;
@@ -304,7 +305,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         if($scope.active) return;
         // game over
         if($scope.gameover) {
-          $scope.message = 'GAME OVER<span class="hint">press esc to reset</hint>';
+          $scope.message = messages.end;
           return;
         }
         $scope.active = true;
