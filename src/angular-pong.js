@@ -80,9 +80,9 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
 
       // statics
       var sounds = {
-        wall: new Audio("pong_8bit_wall.wav"),
-        paddle: new Audio("pong_8bit_paddle.wav"),
-        out: new Audio("pong_8bit_out.wav")
+        wall: new Audio("assets/pong_8bit_wall.wav"),
+        paddle: new Audio("assets/pong_8bit_paddle.wav"),
+        out: new Audio("assets/pong_8bit_out.wav")
       }
 
       //--> TODO: work on these messages
