@@ -2,103 +2,16 @@
 <html>
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-animate.min.js"></script>
-<script src="js/angular/ui-bootstrap-tpls-1.1.2.min.js"></script>
-<script src="js/pong.js"></script>
-<link href='https://fonts.googleapis.com/css?family=VT323' rel='stylesheet' type='text/css'>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-sanitize.min.js"></script>
+<script src="libs/bootstrap/ui-bootstrap-tpls-1.1.2.min.js"></script>
+<script src="src/pong.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Roboto:100,700" rel="stylesheet" type="text/css">
 <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
 <link rel="stylesheet" type="text/css" href="css/pong.css">
 <body>
-
-<div id="app" ng-app="pongApp" ng-controller="PongController as pong">
-
-    <div id="pong-court" class="box">
-        <ball x="{{ball.x}}" y="{{ball.y}}" color="{{ball.color}}"></ball>
-        <paddle side="left" y="{{paddles.left.y}}"></paddle>
-        <span class="score left">{{scores.left}}</span>
-        <div id="net"></div>
-        <span class="score right">{{scores.right}}</span>
-        <paddle side="right" y="{{paddles.right.y}}"></paddle>
-    </div>
-    <script type="text/ng-template" id="myModalContent.html">
-        <div class="modal-header">
-            <h3 class="modal-title">Angular Pong</h3>
-            <h4>Instructions</h4>
-            <p><span class="key-icon">Esc</span> - stops the game and opens this screen or cancels changes and exits this screen.</p>
-            <p><span class="key-icon">Enter</span> - serves the ball or submits changes and exits this screen.</p>
-            <p>Paddles currently only move via keys:
-            <ul>
-                <li>Left: <span class="key-icon">w</span> and <span class="key-icon">s</span></li>
-                <li>Right: <span class="key-icon arrow">&uarr;</span> and <span class="key-icon arrow">&darr;</span></li>
-            </ul>
-            </p>
-            <p>Use the form below to fiddle with available customizations.</p>
-        </div>
-        <div class="modal-body">
-            <form>
-                <p>
-                <label>Players</label>
-                    <input type="radio"
-                           name="numPlayers"
-                           value="1"
-                           ng-model="settings.numPlayers"
-                           class="radio-left">
-                    <label for="numPlayers">1</label>
-                    <input type="radio"
-                           name="numPlayers"
-                           value="2"
-                           ng-model="settings.numPlayers"
-                           class="radio-right">
-                    <label for="numPlayers">2</label>
-                </p>
-                <p>
-                    <label>Sound</label>
-                    <input type="radio"
-                           name="soundOn"
-                           value="1"
-                           ng-model="settings.soundOn"
-                           class="radio-left">
-                    <label for="soundOn">On</label>
-                    <input type="radio"
-                           name="soundOn"
-                           value="0"
-                           ng-model="settings.soundOn"
-                           class="radio-right">
-                    <label for="soundOn">Off</label>
-                </p>
-                <p>
-                    <label>Auto Side</label>
-                    <input type="radio"
-                           name="autoSide"
-                           value="left"
-                           ng-model="settings.autoSide"
-                           class="radio-left">
-                    <label for="autoSide">Left</label>
-                    <input type="radio"
-                           name="autoSide"
-                           value="right"
-                           ng-model="settings.autoSide"
-                           class="radio-right">
-                    <label for="autoSide">Right</label>
-                <p>
-                    <label for="paddleSpeed">Paddle Speed</label>
-                    <input type="text" class="text-paddle-speed" ng-model="settings.paddleSpeed"/>
-                    <input type="range" class="range-paddle-speed" min="0" max="100" ng-model="settings.paddleSpeed" width="50%">
-                    <div class="float-right">
-                        <input type="checkbox"/ ng-model="settings.showDirections"/>
-                        <label for="showDirections">Show this dialog on load</label>
-                    </div>
-                </p>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" type="button" ng-click="clearLocal()">Clear Local Storage</button>
-            <button class="btn btn-default" type="button" ng-click="resetSettings()">Reset</button>
-            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
-            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
-        </div>
-    </script>
-
-</div>
+  <div id="app" ng-app="angular-pong">
+      <pong-court class="pong-court"></pong-court>
+  </div>
 
 </body>
 </html>
