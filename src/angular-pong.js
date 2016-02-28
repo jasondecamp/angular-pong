@@ -3,7 +3,9 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
     return {
       restrict: 'E',
       controller: 'pongController',
-      scope: true,
+      scope: {
+        config:'@'
+      },
       template: ('<pong-ball x="{{ball.x}}" y="{{ball.y}}"></pong-ball>'+
         '<pong-paddle side="left" y="{{paddles.left.y}}"></pong-paddle>'+
         '<pong-paddle side="right" y="{{paddles.right.y}}"></pong-paddle>'+
@@ -13,7 +15,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
           '<span class="right" ng-class="{winner:scores.right==11}" ng-bind="scores.right"></span>'+
         '</div>'+
         '<span class="message" ng-show="message" ng-bind-html="message"></span>')
-    }
+    };
   })
   .directive('pongBall', function() {
     return {
@@ -64,9 +66,11 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
   .controller('pongController',
     ['$scope','$element','$attrs','$interval','$timeout','$sce',
     function($scope,$element,$attrs,$interval,$timeout,$sce) {
-      window.court = $element[0];
-      // configurable
-      var settings = {
+      // reference element
+      court = $element.addClass('pong-court')[0];
+
+      // handle settings
+      var defaults = {
         soundOn: 1,
         paddleSpeed: 50,
         keyMap: {
@@ -75,15 +79,18 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
           38: 'rightup',  // up arrow
           40: 'rightdown' // down arrow
         },
-        smack: false
+        smack: false,
+        assets: 'assets/'
       };
+      $scope.config = $scope.config || {};
+      var settings = angular.extend({},defaults,$scope.config);
 
       // statics
       var sounds = {
-        wall: new Audio("assets/pong_8bit_wall.wav"),
-        paddle: new Audio("assets/pong_8bit_paddle.wav"),
-        out: new Audio("assets/pong_8bit_out.wav")
-      }
+        wall: new Audio(settings.assets+"pong_8bit_wall.wav"),
+        paddle: new Audio(settings.assets+"pong_8bit_paddle.wav"),
+        out: new Audio(settings.assets+"pong_8bit_out.wav")
+      };
 
       //--> TODO: work on these messages
       var messages = {
@@ -102,7 +109,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
           'I\'m gonna remember this... just please don\'t delete your cookies.',
           'Ok, time for me to stop holding back...'
         ]
-      }
+      };
 
       // state variables
       var init = function() {
@@ -113,7 +120,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         $scope.gameover = false;
         $scope.active = false;
         $scope.message = 'Wanna play a game? <span class="hint">press enter to start</hint>';
-      }
+      };
       init();
       var sideOut, messageTimeout;
 
@@ -213,15 +220,14 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
           $scope.paddles[side].velocity = 0;
         },
         auto: function(side) {
+          var direction = ($scope.ball.y > this.center(side)) ? 'down' : 'up';
           if($scope.ball.x < court.clientHeight/10 && randomInt(2)<=25) {
-            var direction = ($scope.ball.y > this.center(side)) ? 'down' : 'up';
             if('up' == direction) cancelInterval(side + 'down');
             else if('down' == direction) cancelInterval(side + 'up');
             if(!angular.isDefined(intervals[side + direction]))
               this.move(side, direction);
           } else if(($scope.ball.x < court.clientHeight/2 && randomInt(2)<=95) ||
             (randomInt(2)<=5)) {
-            var direction = ($scope.ball.y > this.center(side)) ? 'down' : 'up';
             if('up' == direction) cancelInterval(side + 'down');
             else if('down' == direction) cancelInterval(side + 'up');
             if(this.top(side) < $scope.ball.y && $scope.ball.y < this.bottom(side))
@@ -277,7 +283,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
             getRandomVelocity('y')/8);
           this.velocities.y = this.velocities.y > 0 ?
             Math.min(this.velocities.y,court.clientHeight*2) :
-            Math.max(this.velocities.y,court.clientHeight*-2)
+            Math.max(this.velocities.y,court.clientHeight*-2);
           this.velocities.x += (this.velocities.x * 0.05); // 5% faster each hit
         },
         direction: function() {
@@ -298,7 +304,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         if($scope.active) return;
         // game over
         if($scope.gameover) {
-          $scope.message = 'GAME OVER<span class="hint">press esc to reset</hint>'
+          $scope.message = 'GAME OVER<span class="hint">press esc to reset</hint>';
           return;
         }
         $scope.active = true;
@@ -306,7 +312,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         if(messageTimeout) $timeout.cancel(messageTimeout);
         $scope.message = null;
         var sign = 1;
-        if(undefined == sideOut) {
+        if(undefined === sideOut) {
           var sides = ['left', 'right'];
           sideOut = sides[Math.floor(Math.random()*10)%2];
         }
@@ -328,7 +334,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         startGame();
       }
       function startGame() {
-        var tick = undefined;
+        var tick;
         if(angular.isDefined(intervals.ball)) return;
         intervals.ball = $interval(function() {
           $scope.paddles.auto('left');
@@ -371,9 +377,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
           if('x' == axis) { playSound('paddle'); }
         }
         if($scope.ball.touchesTop()) {
-          console.log('up',$scope.ball.velocities.y);
           bounce('y', 'min');
-          console.log('down',$scope.ball.velocities.y);
           return;
         }
         if($scope.ball.touchesBottom()) {
@@ -390,7 +394,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         if($scope.ball.isOut()) {
           $scope.ball.setFinalX();
           sideOut = $scope.ball.direction();
-          $scope.scores[otherSide(sideOut)]++
+          $scope.scores[otherSide(sideOut)]++;
           playSound('out');
           postMessage(otherSide(sideOut));
           $scope.active = false;
@@ -402,11 +406,11 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
 
       // utilities
       function isPaused() {
-        return !angular.isDefined(intervals.ball)
+        return !angular.isDefined(intervals.ball);
       }
       function playSound(sound) {
-        if(0 == settings.soundOn ) { return; }
-        if(undefined != sounds[sound]) {
+        if(0 === settings.soundOn) return;
+        if(sounds[sound]) {
           sounds[sound].play();
         }
       }
@@ -425,7 +429,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         if($scope.message) messageTimeout = $timeout(function(){ $scope.message = null; },5000);
       }
       function cancelInterval(interval) {
-        if(angular.isDefined(interval) && undefined != intervals[interval]) {
+        if(angular.isDefined(interval) && angular.isDefined(intervals[interval])) {
           $interval.cancel(intervals[interval]);
           if(angular.isFunction(controls[interval + 'Stop'])) {
             controls[interval + 'Stop']();
@@ -437,8 +441,8 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
         var other = {
           left: 'right',
           right: 'left'
-        }
-        if(undefined != other[side]) return other[side];
+        };
+        if(other[side]) return other[side];
       }
       function getRandomVelocity(axis) {
         var dimension = 'Height';
@@ -463,7 +467,7 @@ angular.module('angular-pong',['ngSanitize','ngAnimate'])
       function randomSign() {
         var randNum = randomInt(1);
         return (randNum % 2) ? 1 : -1;
-      };
+      }
       angular.element(document).on('keydown .pong', function(e) {
         if(angular.isFunction(controls[settings.keyMap[e.keyCode]])) {
           controls[settings.keyMap[e.keyCode]]();
